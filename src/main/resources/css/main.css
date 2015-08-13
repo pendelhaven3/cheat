@@ -5,3 +5,12 @@
 .action {
 	-fx-font-size: 12pt;
 }
+
+.card {
+	-fx-cursor: hand;
+}
+
+.cardSelected {
+	-fx-background-color: rgba(255, 0, 0, 0.5);
+	-fx-cursor: hand;
+}

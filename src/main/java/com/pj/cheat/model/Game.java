@@ -11,6 +11,7 @@ public class Game {
 	private Deck deck = new Deck();
 	private Deque<Player> turnOrder = new ArrayDeque<>();
 	private List<Card> pile = new ArrayList<>();
+	private Turn currentTurn;
 	
 	public void addPlayer(Player player) {
 		players.add(player);
@@ -44,7 +45,8 @@ public class Game {
 		*/
 	}
 
-	private void processTurn(Turn turn) {
+	public void processTurn(Turn turn) {
+		currentTurn = turn;
 		turn.getPlayer().removeCards(turn.getActualCards());
 		pile.addAll(turn.getActualCards());
 	}
@@ -76,43 +78,6 @@ public class Game {
 		}
 	}
 
-	private class Turn {
-		
-		private Player player;
-		private Card.Value declaredValue;
-		private List<Card> actualCards;
-		
-		/**
-		 * 
-		 * @param player 
-		 * @param declaredValue Declared value of cards
-		 * @param actualCards Actual cards played
-		 */
-		public Turn(Player player, Card.Value declaredValue, List<Card> actualCards) {
-			this.player = player;
-			this.declaredValue = declaredValue;
-			this.actualCards = actualCards;
-		}
-	
-		public boolean isPlayerCheating() {
-			for (Card card : actualCards) {
-				if (!card.getValue().equals(declaredValue)) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public Player getPlayer() {
-			return player;
-		}
-		
-		public List<Card> getActualCards() {
-			return actualCards;
-		}
-		
-	}
-	
 	public Player getHumanPlayer() {
 		return players.get(0);
 	}

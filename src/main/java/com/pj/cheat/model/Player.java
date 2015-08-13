@@ -42,15 +42,16 @@ public class Player {
 	}
 
 	public void removeCards(List<Card> cardsToBeRemoved) {
-		for (Card cardToBeRemoved : cardsToBeRemoved) {
-			for (Iterator<Card> iter = cards.listIterator(); iter.hasNext(); ) {
-				Card card = iter.next();
-				if (card.equals(cardToBeRemoved)) {
-					iter.remove();
-					continue;
-				}
-				throw new RuntimeException("Played a card not in player's hand");
+		int removed = 0;
+		for (Iterator<Card> iter = cards.listIterator(); iter.hasNext(); ) {
+			Card card = iter.next();
+			if (cardsToBeRemoved.contains(card)) {
+				iter.remove();
+				removed++;
 			}
+		}
+		if (cardsToBeRemoved.size() != removed) {
+			throw new RuntimeException("Played a card not in player's hand");
 		}
 	}
 

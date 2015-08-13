@@ -78,9 +78,9 @@
 	<padding>
 		<Insets top="5" bottom="10" />
 	</padding>
-	<ComboBox fx:id="cardValueComboBox" visibleRowCount="5" />
+	<ComboBox fx:id="cardValueComboBox" visibleRowCount="5" promptText="Select Card Value" />
 	<Region minWidth="5" />	
-	<Button text="Go!" onAction="#handleSubmitButtonAction"/>
+	<Button text="Go!" onAction="#playSelectedCards"/>
 </HBox>
 
 <stylesheets>

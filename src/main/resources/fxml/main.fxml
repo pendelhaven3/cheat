@@ -10,6 +10,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.collections.FXCollections?>
 <?import java.lang.String?>
+<?import java.net.URL?>
 
 <VBox fx:controller="com.pj.cheat.controller.MainController" xmlns:fx="http://javafx.com/fxml">
 	<padding><Insets top="10" bottom="10" left="10" right="10" /></padding>
@@ -23,7 +24,7 @@
 			</image>
 		</ImageView>
 		<Text text="Timmy the Tuskanniny" />
-		<Text text="has 11 cards" />
+		<Text fx:id="player2CardsInHandText" text="has 11 cards" />
 	</VBox>
 	<VBox alignment="CENTER">
 		<padding><Insets left="5" right="5" /></padding>
@@ -33,7 +34,7 @@
 			</image>
 		</ImageView>
 		<Text text="Branston the Eyrie" />
-		<Text text="has 11 cards" />
+		<Text fx:id="player3CardsInHandText" text="has 11 cards" />
 	</VBox>
 	<VBox alignment="CENTER">
 		<padding><Insets left="5" right="5" /></padding>
@@ -43,7 +44,7 @@
 			</image>
 		</ImageView>
 		<Text text="Chuffer Bob the Meerca" />
-		<Text text="has 11 cards" />
+		<Text fx:id="player4CardsInHandText" text="has 11 cards" />
 	</VBox>
 </HBox>
 
@@ -51,93 +52,18 @@
 	<padding>
 		<Insets top="10" bottom="5" />
 	</padding>
-	<Text text="The Pile has 1 card in it." />
+	<Text fx:id="cardsInPileText" styleClass="pile" text="The Pile has 1 card in it." />
 </HBox>
 
 <HBox alignment="CENTER" >
 	<padding>
 		<Insets top="5" bottom="10" />
 	</padding>
-	<Text text="YOUR HAND: (10 cards)" />
+	<Text fx:id="cardsInHandText" text="YOUR HAND: (10 cards)" />
 </HBox>
 
 <ScrollPane prefHeight="210" hbarPolicy="NEVER" style="-fx-background-color:transparent;">
 <FlowPane fx:id="cardsFlowPane" hgap="5" vgap="10" prefWrapLength="540">
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
-	<ImageView>
-		<image>
-			<Image url="images/cards/2_hearts.gif" />
-		</image>
-	</ImageView>
 </FlowPane>
 </ScrollPane>
 
@@ -145,25 +71,20 @@
 	<padding>
 		<Insets top="20" bottom="10" />
 	</padding>
-	<Text text="Chuffer Bob the Meerca played 1 nine" />
+	<Text fx:id="actionText" styleClass="action" text="Chuffer Bob the Meerca played 1 nine" />
 </HBox>
 
 <HBox alignment="CENTER" >
 	<padding>
 		<Insets top="5" bottom="10" />
 	</padding>
-	<ComboBox>
-	    <items>
-	        <FXCollections fx:factory="observableArrayList">
-	            <String fx:value="NVT" />
-	            <String fx:value="Bezig" />
-	            <String fx:value="Positief" />
-	            <String fx:value="Negatief" />
-	        </FXCollections>
-	    </items>
-	</ComboBox>
+	<ComboBox fx:id="cardValueComboBox" visibleRowCount="5" />
 	<Region minWidth="5" />	
 	<Button text="Go!" onAction="#handleSubmitButtonAction"/>
 </HBox>
 
+<stylesheets>
+	<URL value="@../css/main.css" />
+</stylesheets>
+  
 </VBox>

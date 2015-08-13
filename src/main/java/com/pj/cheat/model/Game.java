@@ -2,12 +2,8 @@ package com.pj.cheat.model;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
-
-import com.pj.cheat.model.Card.Suit;
-import com.pj.cheat.model.Card.Value;
 
 public class Game {
 
@@ -26,9 +22,10 @@ public class Game {
 	
 	public void start() {
 		distributeCardsToPlayers();
-		arrangePlayerCards();
+		getHumanPlayer().arrangeCards();
 		arrangePlayerTurnOrder();
 		
+		/*
 		while (!hasWinner()) {
 			Player player = getTurnPlayer();
 			
@@ -44,6 +41,7 @@ public class Game {
 			}
 			pile.clear();
 		}
+		*/
 	}
 
 	private void processTurn(Turn turn) {
@@ -68,12 +66,6 @@ public class Game {
 
 	private void arrangePlayerTurnOrder() {
 		turnOrder.addAll(players);
-	}
-
-	private void arrangePlayerCards() {
-		for (Player player : players) {
-			player.arrangeCards();
-		}
 	}
 
 	private void distributeCardsToPlayers() {
@@ -121,23 +113,21 @@ public class Game {
 		
 	}
 	
-	public static void main(String[] args) {
-		Game game = new Game();
-		game.addPlayer(new Player("Human"));
-		game.addPlayer(new Player("Timmy"));
-		game.addPlayer(new Player("Branston"));
-		game.addPlayer(new Player("Chuffer Bob"));
-		
-		game.start();
-		
-		for (Player player : game.getPlayers()) {
-			System.out.println(player.getName() + "'s hand");
-			System.out.println("---------------");
-			for (Card card : player.getCards()) {
-				System.out.println(card);
-			}
-			System.out.println();
-		}
+	public Player getHumanPlayer() {
+		return players.get(0);
+	}
+	
+	
+	public List<Card> getPile() {
+		return pile;
+	}
+	
+	public boolean isHumanPlayerTurn() {
+		return getHumanPlayer().equals(turnOrder.peekFirst());
+	}
+
+	public boolean isNewRound() {
+		return pile.isEmpty();
 	}
 	
 }

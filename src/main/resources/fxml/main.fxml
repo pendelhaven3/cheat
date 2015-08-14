@@ -74,14 +74,23 @@
 	<Text fx:id="actionText" styleClass="action" text="Chuffer Bob the Meerca played 1 nine" />
 </HBox>
 
-<HBox alignment="CENTER" >
+<HBox fx:id="playControlsPane" alignment="CENTER" >
 	<padding>
 		<Insets top="5" bottom="10" />
 	</padding>
 	<ComboBox fx:id="cardValueComboBox" visibleRowCount="5" promptText="Select Card Value" />
-	<Region minWidth="5" />	
-	<Button text="Go!" onAction="#playSelectedCards"/>
+	<Region minWidth="5" />
+	<Button text="Go!" onAction="#play"/>
 </HBox>
+
+<VBox fx:id="challengeControlsPane" alignment="CENTER" visible="false">
+	<padding>
+		<Insets top="5" bottom="10" />
+	</padding>
+	<Button fx:id="accuseButton" onAction="#challenge"/>
+	<Region minHeight="5" />
+	<Button fx:id="letItSlideButton" onAction="#letItSlide"/>
+</VBox>
 
 <stylesheets>
 	<URL value="@../css/main.css" />

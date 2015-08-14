@@ -24,7 +24,7 @@ public class Cheat extends Application {
 
 	private Scene createMainScene() throws IOException {
 		Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
-		return new Scene(root, 550, 600);
+		return new Scene(root, 550, 620);
 	}
 
 }

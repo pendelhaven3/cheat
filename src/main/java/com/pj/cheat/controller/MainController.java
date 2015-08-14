@@ -2,6 +2,8 @@ package com.pj.cheat.controller;
 
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -9,7 +11,7 @@ import java.util.stream.Collectors;
 import com.pj.cheat.gui.CardPane;
 import com.pj.cheat.gui.CardPanesHolder;
 import com.pj.cheat.gui.ShowDialog;
-import com.pj.cheat.model.AIPlayer;
+import com.pj.cheat.model.Opponent;
 import com.pj.cheat.model.Card;
 import com.pj.cheat.model.Game;
 import com.pj.cheat.model.Player;
@@ -19,8 +21,11 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 public class MainController implements Initializable {
@@ -33,16 +38,23 @@ public class MainController implements Initializable {
 	@FXML private Text player3CardsInHandText;
 	@FXML private Text player4CardsInHandText;
 	@FXML private ComboBox<Card.Value> cardValueComboBox;
+	@FXML private HBox playControlsPane;
+	@FXML private VBox challengeControlsPane;
+	@FXML private Button accuseButton;
+	@FXML private Button letItSlideButton;
 	
 	private Game game = new Game();
 	private CardPanesHolder cardPanesHolder = new CardPanesHolder();
+	private ResourceBundle messages = ResourceBundle.getBundle("messages");
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		setControlPanesToFreeUpSpaceWhenNotVisible();
+		
 		game.addPlayer(new Player("Human"));
-		game.addPlayer(new AIPlayer("Timmy"));
-		game.addPlayer(new AIPlayer("Branston"));
-		game.addPlayer(new AIPlayer("Chuffer Bob"));
+		game.addPlayer(new Opponent("Timmy"));
+		game.addPlayer(new Opponent("Branston"));
+		game.addPlayer(new Opponent("Chuffer Bob"));
 		
 		game.start();
 		
@@ -52,11 +64,28 @@ public class MainController implements Initializable {
 		updateActionControl();
 	}
 
+	private void setControlPanesToFreeUpSpaceWhenNotVisible() {
+		playControlsPane.managedProperty().bind(playControlsPane.visibleProperty());
+		challengeControlsPane.managedProperty().bind(challengeControlsPane.visibleProperty());
+	}
+
+	private static final String ACCUSE_BUTTON_TEXT = "Accuse {0} of cheating!";
+	private static final String LET_IT_SLIDE_BUTTON_TEXT = "Let {0} slide";
+	
 	private void updateActionControl() {
 		if (game.isHumanPlayerTurn()) {
+			playControlsPane.setVisible(true);
+			challengeControlsPane.setVisible(false);
 			if (game.isNewRound()) {
 				cardValueComboBox.setItems(FXCollections.observableArrayList(Card.Value.values()));
+			} else {
+				cardValueComboBox.setItems(FXCollections.observableArrayList(game.getAllowedCardValues()));
 			}
+		} else {
+			playControlsPane.setVisible(false);
+			challengeControlsPane.setVisible(true);
+			accuseButton.setText(MessageFormat.format(ACCUSE_BUTTON_TEXT, game.getTurnPlayer().getName()));
+			letItSlideButton.setText(MessageFormat.format(LET_IT_SLIDE_BUTTON_TEXT, game.getTurnPlayer().getName()));
 		}
 	}
 
@@ -65,6 +94,8 @@ public class MainController implements Initializable {
 			if (game.isNewRound()) {
 				actionText.setText("You can play cards of any value this turn!");
 			}
+		} else {
+			actionText.setText(game.getCurrentTurnDescription());
 		}
 	}
 
@@ -73,8 +104,6 @@ public class MainController implements Initializable {
 	private static final String CARDS_IN_PILE_TEXT = "The Pile has {0} cards in it";
 	
 	private void updateNumberOfCardsTexts() {
-		updateHumanPlayerNumberOfCardsText();
-		
 		int player2CardsInHand = game.getPlayers().get(1).getCards().size();
 		player2CardsInHandText.setText(MessageFormat.format(AI_PLAYER_CARDS_IN_HAND_TEXT, player2CardsInHand));
 		
@@ -101,17 +130,21 @@ public class MainController implements Initializable {
 	}
 
 	private void updateHumanPlayerCardsDisplay() {
+		updateHumanPlayerNumberOfCardsText();
+		
 		cardPanesHolder.clear();
 		cardsFlowPane.getChildren().clear();
 		
 		List<Card> cards = game.getHumanPlayer().getCards();
+		Collections.sort(cards, new CardDisplayComparator());
+		
 		List<CardPane> cardPanes = cards.stream()
 				.map(card -> new CardPane(card, cardPanesHolder)).collect(Collectors.toList());
 		cardsFlowPane.getChildren().addAll(cardPanes);		
 	}
 	
 	@FXML
-	public void playSelectedCards(ActionEvent event) {
+	public void play(ActionEvent event) {
 		if (hasNoCardValueSelected()) {
 			ShowDialog.error("Please select a card value to declare");
 			return;
@@ -128,9 +161,45 @@ public class MainController implements Initializable {
 				cardPanesHolder.getSelectedCards());
 		game.processTurn(turn);
 		
-		updateHumanPlayerCardsDisplay();
-		updateHumanPlayerNumberOfCardsText();
-		updateCardsInPileText();
+		// TODO: turn challenge by AI
+		
+		if (game.getHumanPlayer().hasNoMoreCards()) {
+			displayHumanPlayerWinMessage();
+			return;
+		} else {
+			updateHumanPlayerCardsDisplay();
+			updateCardsInPileText();
+			takeNextPlayerTurn();
+		}
+	}
+
+	private void displayHumanPlayerWinMessage() {
+		ShowDialog.info(messages.getString("HUMAN_WINNER"));
+	}
+
+	private void takeNextPlayerTurn() {
+		Player player = game.getNextTurnPlayer();
+		if (player instanceof Opponent) {
+			game.processTurn(((Opponent)player).takeTurn(game));
+			
+			updateActionText();
+			updateCardsInOpponentHandText(player);
+			updateCardsInPileText();
+		}
+		updateActionControl();
+	}
+
+	private void updateCardsInOpponentHandText(Player player) {
+		int cardsInHand = player.getCards().size();
+		Text text = null;
+		if (player.getNumber() == 2) {
+			text = player2CardsInHandText;
+		} else if (player.getNumber() == 3) {
+			text = player3CardsInHandText;
+		} else if (player.getNumber() == 4) {
+			text = player4CardsInHandText;
+		}
+		text.setText(MessageFormat.format(AI_PLAYER_CARDS_IN_HAND_TEXT, cardsInHand));
 	}
 
 	private boolean hasNoCardValueSelected() {
@@ -141,4 +210,52 @@ public class MainController implements Initializable {
 		return cardPanesHolder.hasNoSelectedCards();
 	}
 
+	@FXML
+	public void challenge(ActionEvent event) {
+		Player turnPlayer = game.getTurnPlayer();
+		if (game.challengeCurrentTurn(game.getHumanPlayer())) {
+			String message = messages.getString("HUMAN_CHALLENGER_AI_IS_CHEATING");
+			ShowDialog.info(MessageFormat.format(message, turnPlayer.getName()));
+			updateCardsInOpponentHandText(turnPlayer);
+		} else {
+			String message = messages.getString("HUMAN_CHALLENGER_AI_IS_NOT_CHEATING");
+			ShowDialog.info(MessageFormat.format(message, turnPlayer.getName()));
+			if (turnPlayer.hasNoMoreCards()) {
+				displayAIPlayerWinMessage(turnPlayer);
+				return;
+			}
+			updateHumanPlayerCardsDisplay();
+		}
+		
+		takeNextPlayerTurn();
+	}
+	
+	@FXML
+	public void letItSlide(ActionEvent event) {
+		if (game.getTurnPlayer().hasNoMoreCards()) {
+			displayAIPlayerWinMessage(game.getTurnPlayer());
+			return;
+		}
+		
+		takeNextPlayerTurn();
+	}
+	
+	private void displayAIPlayerWinMessage(Player player) {
+		String message = messages.getString("AI_WINNER");
+		ShowDialog.info(MessageFormat.format(message, player.getName()));
+	}
+
+	private class CardDisplayComparator implements Comparator<Card> {
+
+		@Override
+		public int compare(Card o1, Card o2) {
+			int result = o1.getValue().compareTo(o2.getValue());
+			if (result == 0) {
+				result = o1.getSuit().compareTo(o2.getSuit());
+			}
+			return result;
+		}
+		
+	}
+	
 }

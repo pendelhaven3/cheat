@@ -1,16 +1,23 @@
 package com.pj.cheat.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
 public class Player {
 
+	private int number;
 	private String name;
 	private List<Card> cards = new ArrayList<>();
 	
+	public int getNumber() {
+		return number;
+	}
+
+	public void setNumber(int number) {
+		this.number = number;
+	}
+
 	public void addCard(Card card) {
 		cards.add(card);
 	}
@@ -25,20 +32,6 @@ public class Player {
 
 	public List<Card> getCards() {
 		return cards;
-	}
-
-	public void arrangeCards() {
-		Collections.sort(cards, new Comparator<Card>() {
-
-			@Override
-			public int compare(Card o1, Card o2) {
-				int result = o1.getValue().compareTo(o2.getValue());
-				if (result == 0) {
-					result = o1.getSuit().compareTo(o2.getSuit());
-				}
-				return result;
-			}
-		});
 	}
 
 	public void removeCards(List<Card> cardsToBeRemoved) {

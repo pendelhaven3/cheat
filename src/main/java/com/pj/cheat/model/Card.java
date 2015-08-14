@@ -1,5 +1,9 @@
 package com.pj.cheat.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -27,6 +31,8 @@ public class Card {
 		QUEEN("Queen"), 
 		KING("King");
 		
+		private static final List<Value> LIST = Arrays.asList(Value.values());
+		
 		private String description;
 		
 		private Value(String description) {
@@ -35,6 +41,29 @@ public class Card {
 		
 		@Override
 		public String toString() {	
+			return description;
+		}
+		
+		public List<Value> getSelfAndAdjacentValues() {
+			List<Value> toReturn = new ArrayList<>(3);
+			toReturn.add(this);
+			
+			int index = LIST.indexOf(this);
+			if (index == 0) {
+				toReturn.add(0, LIST.get(12));
+				toReturn.add(LIST.get(index + 1));
+			} else if (index == 12) {
+				toReturn.add(0, LIST.get(11));
+				toReturn.add(LIST.get(0));
+			} else {
+				toReturn.add(0, LIST.get(index - 1));
+				toReturn.add(LIST.get(index + 1));
+			}
+			
+			return toReturn;
+		}
+		
+		public String getDescription() {
 			return description;
 		}
 		

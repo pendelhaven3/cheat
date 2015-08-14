@@ -9,6 +9,16 @@ public class Player {
 	private int number;
 	private String name;
 	private List<Card> cards = new ArrayList<>();
+	private boolean ai;
+
+	public Player(String name) {
+		this.name = name;
+	}
+	
+	public Player(String name, boolean ai) {
+		this.name = name;
+		this.ai = ai;
+	}
 	
 	public int getNumber() {
 		return number;
@@ -20,10 +30,6 @@ public class Player {
 
 	public void addCard(Card card) {
 		cards.add(card);
-	}
-	
-	public Player(String name) {
-		this.name = name;
 	}
 	
 	public String getName() {
@@ -51,5 +57,13 @@ public class Player {
 	public boolean hasNoMoreCards() {
 		return cards.isEmpty();
 	}
-	
+
+	public boolean isAi() {
+		return ai;
+	}
+
+	public void setAi(boolean ai) {
+		this.ai = ai;
+	}
+
 }

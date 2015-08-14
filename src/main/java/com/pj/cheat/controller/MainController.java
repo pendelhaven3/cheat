@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import com.pj.cheat.gui.CardPane;
 import com.pj.cheat.gui.CardPanesHolder;
 import com.pj.cheat.gui.ShowDialog;
-import com.pj.cheat.model.Opponent;
+import com.pj.cheat.model.AiPlayer;
 import com.pj.cheat.model.Card;
 import com.pj.cheat.model.Game;
 import com.pj.cheat.model.Player;
@@ -52,11 +52,18 @@ public class MainController implements Initializable {
 		setControlPanesToFreeUpSpaceWhenNotVisible();
 		
 		game.addPlayer(new Player("Human"));
-		game.addPlayer(new Opponent("Timmy"));
-		game.addPlayer(new Opponent("Branston"));
-		game.addPlayer(new Opponent("Chuffer Bob"));
+		game.addPlayer(new AiPlayer("Timmy"));
+		game.addPlayer(new AiPlayer("Branston"));
+		game.addPlayer(new AiPlayer("Chuffer Bob"));
 		
 		game.start();
+		
+		for (AiPlayer aiPlayer : game.getAiPlayers()) {
+			Collections.sort(aiPlayer.getCards(), new CardDisplayComparator());
+			System.out.println(aiPlayer.getName());
+			System.out.println(aiPlayer.getCards());
+			System.out.println();
+		}
 		
 		updateNumberOfCardsTexts();
 		updateHumanPlayerCardsDisplay();
@@ -161,15 +168,32 @@ public class MainController implements Initializable {
 				cardPanesHolder.getSelectedCards());
 		game.processTurn(turn);
 		
-		// TODO: turn challenge by AI
+		updateHumanPlayerCardsDisplay();
+		updateCardsInPileText();
+		
+		processHumanPlayerTurnChallengers();
 		
 		if (game.getHumanPlayer().hasNoMoreCards()) {
 			displayHumanPlayerWinMessage();
 			return;
 		} else {
-			updateHumanPlayerCardsDisplay();
-			updateCardsInPileText();
 			takeNextPlayerTurn();
+		}
+	}
+
+	private void processHumanPlayerTurnChallengers() {
+		if (game.hasCurrentTurnAIChallengers()) {
+			Player challenger = game.getRandomCurrentTurnAIChallenger();
+			if (game.challengeCurrentTurn(challenger)) {
+				String message = messages.getString("AI_CHALLENGER_HUMAN_IS_CHEATING");
+				ShowDialog.info(MessageFormat.format(message, challenger.getName()));
+				updateHumanPlayerCardsDisplay();
+			} else {
+				String message = messages.getString("AI_CHALLENGER_HUMAN_IS_NOT_CHEATING");
+				ShowDialog.info(MessageFormat.format(message, challenger.getName()));
+				updateCardsInOpponentHandText(challenger);
+			}
+			updateCardsInPileText();
 		}
 	}
 
@@ -179,8 +203,8 @@ public class MainController implements Initializable {
 
 	private void takeNextPlayerTurn() {
 		Player player = game.getNextTurnPlayer();
-		if (player instanceof Opponent) {
-			game.processTurn(((Opponent)player).takeTurn(game));
+		if (player instanceof AiPlayer) {
+			game.processTurn(((AiPlayer)player).play(game));
 			
 			updateActionText();
 			updateCardsInOpponentHandText(player);

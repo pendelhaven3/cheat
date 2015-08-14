@@ -1,0 +1,5 @@
+1. AI - Simple
+1.a. Will always play allowed cards if able.
+1.a. Will only challenge based on current turn data
+
+e.g. If you declare 2 aces and they have 3 aces on their hand, then they will challenge.

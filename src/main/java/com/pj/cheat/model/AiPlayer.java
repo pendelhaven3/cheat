@@ -6,23 +6,36 @@ import java.util.stream.Collectors;
 import com.pj.cheat.model.Card.Value;
 import com.pj.cheat.util.RandomUtil;
 
-public class Opponent extends Player {
+public class AiPlayer extends Player {
 
-	public Opponent(String name) {
-		super(name);
+	private static final int MAX_NUMBER_OF_SAME_VALUE_CARDS = 4;
+	
+	public AiPlayer(String name) {
+		super(name, true);
 	}
 
-	public Turn takeTurn(Game game) {
+	public Turn play(Game game) {
 		List<Card.Value> playableCardValues = getPlayableCardValues(game);
 		if (!playableCardValues.isEmpty()) {
 			Card.Value valueToPlay = RandomUtil.getRandomElement(playableCardValues);
 			return new Turn(this, valueToPlay, getCardsWithValue(valueToPlay));
 		} else {
-			List<Card.Value> availableCardValues = getAvailableCardValues();
-			Card.Value valueToPlay = RandomUtil.getRandomElement(availableCardValues);
-			Card.Value valueToDeclare = RandomUtil.getRandomElement(game.getAllowedCardValues());
-			return new Turn(this, valueToDeclare, getCardsWithValue(valueToPlay));
+			return new Turn(this, 
+					getRandomAllowedCardValue(game), 
+					getRandomAvailableCards());
 		}
+	}
+
+	private List<Card> getRandomAvailableCards() {
+		return getCardsWithValue(getRandomAvailableCardValue());
+	}
+
+	private Value getRandomAllowedCardValue(Game game) {
+		return RandomUtil.getRandomElement(game.getAllowedCardValues());
+	}
+	
+	private Value getRandomAvailableCardValue() {
+		return RandomUtil.getRandomElement(getAvailableCardValues());
 	}
 
 	private List<Value> getAvailableCardValues() {
@@ -41,6 +54,13 @@ public class Opponent extends Player {
 
 	private boolean hasCardWithValue(Card.Value value) {
 		return getCards().stream().anyMatch(card -> card.getValue() == value);
+	}
+	
+	public boolean willChallenge(Turn turn) {
+		if (hasCardWithValue(turn.getDeclaredValue())) {
+			return getCardsWithValue(turn.getDeclaredValue()).size() + turn.getActualCards().size() > MAX_NUMBER_OF_SAME_VALUE_CARDS;
+		}
+		return false;
 	}
 	
 }

@@ -15,47 +15,52 @@
 <VBox fx:controller="com.pj.cheat.controller.MainController" xmlns:fx="http://javafx.com/fxml">
 	<padding><Insets top="10" bottom="10" left="10" right="10" /></padding>
 
-<HBox alignment="CENTER" >
-	<VBox alignment="CENTER">
+<HBox alignment="center">
+	<padding><Insets bottom="5" /></padding>
+	<Text fx:id="turnText" />
+</HBox>
+
+<HBox alignment="center" >
+	<VBox alignment="center">
 		<padding><Insets left="5" right="5" /></padding>
 		<ImageView>
 			<image>
 				<Image url="images/players/timmy.gif" />
 			</image>
 		</ImageView>
-		<Text text="Timmy the Tuskanniny" />
-		<Text fx:id="player2CardsInHandText" text="has 11 cards" />
+		<Text fx:id="player2NameText" />
+		<Text fx:id="player2CardsInHandText" />
 	</VBox>
-	<VBox alignment="CENTER">
+	<VBox alignment="center">
 		<padding><Insets left="5" right="5" /></padding>
 		<ImageView>
 			<image>
 				<Image url="images/players/branston.gif" />
 			</image>
 		</ImageView>
-		<Text text="Branston the Eyrie" />
-		<Text fx:id="player3CardsInHandText" text="has 11 cards" />
+		<Text fx:id="player3NameText" />
+		<Text fx:id="player3CardsInHandText" />
 	</VBox>
-	<VBox alignment="CENTER">
+	<VBox alignment="center">
 		<padding><Insets left="5" right="5" /></padding>
 		<ImageView>
 			<image>
 				<Image url="images/players/chufferbob.gif" />
 			</image>
 		</ImageView>
-		<Text text="Chuffer Bob the Meerca" />
-		<Text fx:id="player4CardsInHandText" text="has 11 cards" />
+		<Text fx:id="player4NameText" />
+		<Text fx:id="player4CardsInHandText" />
 	</VBox>
 </HBox>
 
-<HBox alignment="CENTER">
+<HBox alignment="center">
 	<padding>
 		<Insets top="10" bottom="5" />
 	</padding>
-	<Text fx:id="cardsInPileText" styleClass="pile" text="The Pile has 1 card in it." />
+	<Text fx:id="cardsInPileText" styleClass="pile" />
 </HBox>
 
-<HBox alignment="CENTER" >
+<HBox alignment="center" >
 	<padding>
 		<Insets top="5" bottom="10" />
 	</padding>
@@ -67,14 +72,14 @@
 </FlowPane>
 </ScrollPane>
 
-<HBox alignment="CENTER" >
+<HBox alignment="center" >
 	<padding>
 		<Insets top="20" bottom="10" />
 	</padding>
-	<Text fx:id="actionText" styleClass="action" text="Chuffer Bob the Meerca played 1 nine" />
+	<Text fx:id="actionText" styleClass="action" />
 </HBox>
 
-<HBox fx:id="playControlsPane" alignment="CENTER" >
+<HBox fx:id="playControlsPane" alignment="center" >
 	<padding>
 		<Insets top="5" bottom="10" />
 	</padding>
@@ -83,7 +88,7 @@
 	<Button text="Go!" onAction="#play"/>
 </HBox>
 
-<VBox fx:id="challengeControlsPane" alignment="CENTER" visible="false">
+<VBox fx:id="challengeControlsPane" alignment="center" visible="false">
 	<padding>
 		<Insets top="5" bottom="10" />
 	</padding>

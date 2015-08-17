@@ -1,5 +1,14 @@
-1. AI - Simple
-1.a. Will always play allowed cards if able.
-1.a. Will only challenge based on current turn data
+AI Level 1:
+a. Will always play allowed cards if able.
+b. If cannot play an allowed card value, will randomly select an available card then declare it as a random allowed card value.
+c. Will only challenge based on current turn data.
 
 e.g. If you declare 2 aces and they have 3 aces on their hand, then they will challenge.
+
+AI Level 2:
+a. Will always play allowed cards if able.
+b. If cannot play an allowed card value, will randomly select an available card then declare it as a random allowed card value
+   but taking note of earlier declared values during the round.
+c. Will challenge based on current round data
+
+e.g. If you declare 2 aces and a previous player has also declared 2 aces and they have 1 ace on their hand, then they will challenge.

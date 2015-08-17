@@ -47,17 +47,13 @@ public class Game {
 		pile.addAll(turn.getActualCards());
 	}
 
+	/**
+	 * Returns the Player of the current turn;
+	 * 
+	 * @return
+	 */
 	public Player getTurnPlayer() {
 		return turnOrder.peekFirst();
-	}
-
-	public boolean hasWinner() {
-		for (Player player : players) {
-			if (player.hasNoMoreCards()) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private void arrangePlayerTurnOrder() {
@@ -124,7 +120,9 @@ public class Game {
 	}
 
 	private List<Player> getCurrentTurnAIChallengers() {
-		return aiPlayers.stream().filter(aiPlayer -> aiPlayer.willChallenge(currentTurn)).collect(Collectors.toList());
+		return aiPlayers.stream()
+				.filter(aiPlayer -> aiPlayer != getTurnPlayer() && aiPlayer.willChallenge(currentTurn))
+				.collect(Collectors.toList());
 	}
 	
 	public boolean hasCurrentTurnAIChallengers() {
@@ -133,6 +131,14 @@ public class Game {
 
 	public Player getRandomCurrentTurnAIChallenger() {
 		return RandomUtil.getRandomElement(getCurrentTurnAIChallengers());
+	}
+
+	public void notifyAiPlayers(Event event) {
+		aiPlayers.stream().forEach(aiPlayer -> aiPlayer.processEvent(this, event));
+	}
+
+	public Turn getCurrentTurn() {
+		return currentTurn;
 	}
 	
 }

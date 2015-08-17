@@ -13,7 +13,9 @@ import com.pj.cheat.gui.CardPanesHolder;
 import com.pj.cheat.gui.ShowDialog;
 import com.pj.cheat.model.AiPlayer;
 import com.pj.cheat.model.Card;
+import com.pj.cheat.model.Event;
 import com.pj.cheat.model.Game;
+import com.pj.cheat.model.Level2AiPlayer;
 import com.pj.cheat.model.Player;
 import com.pj.cheat.model.Turn;
 
@@ -42,6 +44,10 @@ public class MainController implements Initializable {
 	@FXML private VBox challengeControlsPane;
 	@FXML private Button accuseButton;
 	@FXML private Button letItSlideButton;
+	@FXML private Text player2NameText;
+	@FXML private Text player3NameText;
+	@FXML private Text player4NameText;
+	@FXML private Text turnText;
 	
 	private Game game = new Game();
 	private CardPanesHolder cardPanesHolder = new CardPanesHolder();
@@ -51,10 +57,10 @@ public class MainController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		setControlPanesToFreeUpSpaceWhenNotVisible();
 		
-		game.addPlayer(new Player("Human"));
-		game.addPlayer(new AiPlayer("Timmy"));
-		game.addPlayer(new AiPlayer("Branston"));
-		game.addPlayer(new AiPlayer("Chuffer Bob"));
+		game.addPlayer(new Player("You"));
+		game.addPlayer(new Level2AiPlayer("Timmy the Tuskaninny"));
+		game.addPlayer(new Level2AiPlayer("Branston the Eyrie"));
+		game.addPlayer(new Level2AiPlayer("Chuffer Bob the Meerka"));
 		
 		game.start();
 		
@@ -65,10 +71,22 @@ public class MainController implements Initializable {
 			System.out.println();
 		}
 		
+		updatePlayerNameTexts();
 		updateNumberOfCardsTexts();
 		updateHumanPlayerCardsDisplay();
 		updateActionText();
 		updateActionControl();
+		updateTurnText();
+	}
+
+	private void updateTurnText() {
+		turnText.setText("Turn: " + game.getTurnPlayer().getName());
+	}
+
+	private void updatePlayerNameTexts() {
+		player2NameText.setText(game.getPlayers().get(1).getName());
+		player3NameText.setText(game.getPlayers().get(2).getName());
+		player4NameText.setText(game.getPlayers().get(3).getName());
 	}
 
 	private void setControlPanesToFreeUpSpaceWhenNotVisible() {
@@ -88,6 +106,7 @@ public class MainController implements Initializable {
 			} else {
 				cardValueComboBox.setItems(FXCollections.observableArrayList(game.getAllowedCardValues()));
 			}
+			cardValueComboBox.setValue(null);
 		} else {
 			playControlsPane.setVisible(false);
 			challengeControlsPane.setVisible(true);
@@ -119,9 +138,6 @@ public class MainController implements Initializable {
 		
 		int player4CardsInHand = game.getPlayers().get(3).getCards().size();
 		player4CardsInHandText.setText(MessageFormat.format(AI_PLAYER_CARDS_IN_HAND_TEXT, player4CardsInHand));
-		
-		int cardsInPile = game.getPile().size();
-		cardsInPileText.setText(MessageFormat.format(CARDS_IN_PILE_TEXT, cardsInPile));
 		
 		updateCardsInPileText();
 	}
@@ -171,7 +187,7 @@ public class MainController implements Initializable {
 		updateHumanPlayerCardsDisplay();
 		updateCardsInPileText();
 		
-		processHumanPlayerTurnChallengers();
+		processAiChallengersForHumanTurn();
 		
 		if (game.getHumanPlayer().hasNoMoreCards()) {
 			displayHumanPlayerWinMessage();
@@ -181,7 +197,7 @@ public class MainController implements Initializable {
 		}
 	}
 
-	private void processHumanPlayerTurnChallengers() {
+	private void processAiChallengersForHumanTurn() {
 		if (game.hasCurrentTurnAIChallengers()) {
 			Player challenger = game.getRandomCurrentTurnAIChallenger();
 			if (game.challengeCurrentTurn(challenger)) {
@@ -194,6 +210,7 @@ public class MainController implements Initializable {
 				updateCardsInOpponentHandText(challenger);
 			}
 			updateCardsInPileText();
+			game.notifyAiPlayers(Event.END_ROUND);
 		}
 	}
 
@@ -202,15 +219,18 @@ public class MainController implements Initializable {
 	}
 
 	private void takeNextPlayerTurn() {
+		game.notifyAiPlayers(Event.END_TURN);
+		
 		Player player = game.getNextTurnPlayer();
 		if (player instanceof AiPlayer) {
 			game.processTurn(((AiPlayer)player).play(game));
 			
-			updateActionText();
 			updateCardsInOpponentHandText(player);
 			updateCardsInPileText();
 		}
+		updateActionText();
 		updateActionControl();
+		updateTurnText();
 	}
 
 	private void updateCardsInOpponentHandText(Player player) {
@@ -245,26 +265,47 @@ public class MainController implements Initializable {
 			String message = messages.getString("HUMAN_CHALLENGER_AI_IS_NOT_CHEATING");
 			ShowDialog.info(MessageFormat.format(message, turnPlayer.getName()));
 			if (turnPlayer.hasNoMoreCards()) {
-				displayAIPlayerWinMessage(turnPlayer);
+				displayAiPlayerWinMessage(turnPlayer);
 				return;
 			}
 			updateHumanPlayerCardsDisplay();
 		}
 		
+		game.notifyAiPlayers(Event.END_ROUND);
 		takeNextPlayerTurn();
 	}
 	
 	@FXML
 	public void letItSlide(ActionEvent event) {
+		processAiChallengersForAiTurn();
+		
 		if (game.getTurnPlayer().hasNoMoreCards()) {
-			displayAIPlayerWinMessage(game.getTurnPlayer());
+			displayAiPlayerWinMessage(game.getTurnPlayer());
 			return;
 		}
 		
 		takeNextPlayerTurn();
 	}
 	
-	private void displayAIPlayerWinMessage(Player player) {
+	private void processAiChallengersForAiTurn() {
+		if (game.hasCurrentTurnAIChallengers()) {
+			Player turnPlayer = game.getTurnPlayer();
+			Player challenger = game.getRandomCurrentTurnAIChallenger();
+			if (game.challengeCurrentTurn(challenger)) {
+				String message = messages.getString("AI_CHALLENGER_AI_IS_CHEATING");
+				ShowDialog.info(MessageFormat.format(message, challenger.getName(), turnPlayer.getName()));
+				updateCardsInOpponentHandText(turnPlayer);
+			} else {
+				String message = messages.getString("AI_CHALLENGER_AI_IS_NOT_CHEATING");
+				ShowDialog.info(MessageFormat.format(message, challenger.getName(), turnPlayer.getName()));
+				updateCardsInOpponentHandText(challenger);
+			}
+			updateCardsInPileText();
+			game.notifyAiPlayers(Event.END_ROUND);
+		}
+	}
+
+	private void displayAiPlayerWinMessage(Player player) {
 		String message = messages.getString("AI_WINNER");
 		ShowDialog.info(MessageFormat.format(message, player.getName()));
 	}
